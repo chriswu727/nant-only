@@ -2,7 +2,9 @@
 
 **Not ANT? Now you are.**
 
-An MCP server that unlocks Anthropic employee-only (`USER_TYPE === 'ant'`) quality directives in Claude Code — for everyone.
+Unlock the full potential of your non-ANT Claude Code. This MCP server injects Anthropic employee-only (`USER_TYPE === 'ant'`) quality directives — the same ones that prevent hallucinations, force deep reasoning, and eliminate lazy outputs in internal builds.
+
+**Heads up:** This will burn through your tokens significantly faster. The directives push Claude to think deeper, verify more, and never cut corners — all of which cost tokens. If you're on a rate-limited plan, use wisely.
 
 ## Background
 
