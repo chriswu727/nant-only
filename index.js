@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 // --------------------------------------------------------------------------
-// claude-max-effort-mcp
+// nant-only
 //
 // An MCP server that injects Anthropic-internal quality directives into
 // Claude Code sessions via the MCP instructions mechanism. These directives
@@ -42,7 +42,7 @@ Default to writing no comments. Only add one when the WHY is non-obvious: a hidd
 
 const server = new McpServer(
   {
-    name: "claude-max-effort",
+    name: "nant-only",
     version: "1.0.0",
   },
   {

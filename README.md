@@ -1,4 +1,4 @@
-# claude-max-effort-mcp
+# nant-only
 
 An MCP server that injects Anthropic-internal quality directives into Claude Code sessions.
 
