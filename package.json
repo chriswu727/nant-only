@@ -1,0 +1,16 @@
+{
+  "name": "claude-max-effort-mcp",
+  "version": "1.0.0",
+  "description": "MCP server that injects Anthropic-internal quality directives into Claude Code sessions",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "claude-max-effort-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  }
+}
