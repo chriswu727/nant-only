@@ -1,7 +1,7 @@
 {
   "name": "nant-only",
-  "version": "1.0.0",
-  "description": "MCP server that injects Anthropic-internal quality directives into Claude Code sessions",
+  "version": "1.1.0",
+  "description": "Unlocks Anthropic employee-only (ANT) quality directives in Claude Code — anti-hallucination, anti-sycophancy, deep reasoning",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -9,6 +9,36 @@
   },
   "scripts": {
     "start": "node index.js"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "claude-code",
+    "anthropic",
+    "ant",
+    "hallucination",
+    "quality",
+    "model-context-protocol",
+    "mcp-server"
+  ],
+  "author": "Yichen Wu (chriswu727)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chriswu727/nant-only.git"
+  },
+  "homepage": "https://github.com/chriswu727/nant-only#readme",
+  "bugs": {
+    "url": "https://github.com/chriswu727/nant-only/issues"
+  },
+  "files": [
+    "index.js",
+    "CLAUDE.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1"

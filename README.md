@@ -63,12 +63,27 @@ If you already have a `~/CLAUDE.md`, merge the directives into it manually.
 
 ### 2. MCP Server (system-reminder layer)
 
+**Option A: npx (no install needed)**
+
+Add to `~/.claude.json` under `mcpServers`:
+
+```json
+{
+  "nant-only": {
+    "command": "npx",
+    "args": ["-y", "nant-only"],
+    "env": {},
+    "type": "stdio"
+  }
+}
+```
+
+**Option B: from cloned repo**
+
 ```bash
 cd nant-only
 npm install
 ```
-
-Add to `~/.claude.json` under `mcpServers`:
 
 ```json
 {
@@ -81,7 +96,26 @@ Add to `~/.claude.json` under `mcpServers`:
 }
 ```
 
-### 3. API-level settings (optional but recommended)
+### 3. Selective directives (optional)
+
+Don't want all directives? Set `NANT_DIRECTIVES` to a comma-separated list:
+
+```json
+{
+  "nant-only": {
+    "command": "npx",
+    "args": ["-y", "nant-only"],
+    "env": {
+      "NANT_DIRECTIVES": "hallucination,reasoning"
+    },
+    "type": "stdio"
+  }
+}
+```
+
+Available directives: `hallucination`, `sycophancy`, `laziness`, `reasoning`, `edit`, `verify`. Default: `all`.
+
+### 4. API-level settings (optional but recommended)
 
 In `~/.claude/settings.json`:
 
@@ -95,9 +129,12 @@ And type `ultrathink` in your prompts for tasks that need deep reasoning.
 
 Restart Claude Code. Everything connects automatically on session start.
 
-## Mid-session reminder
+## Tools
 
-Claude getting lazy? Invoke the `remind_max_effort` tool to slap it back into shape.
+| Tool | What it does |
+|---|---|
+| `check_status` | Shows which directives are active, configuration, and companion layer recommendations |
+| `remind_max_effort` | Mid-session slap — reinforce all directives when Claude gets lazy |
 
 ## The full stack
 
