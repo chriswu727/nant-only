@@ -4,7 +4,7 @@
 
 Unlock the full potential of your non-ANT Claude Code. This MCP server injects Anthropic employee-only (`USER_TYPE === 'ant'`) quality directives — the same ones that prevent hallucinations, force deep reasoning, and eliminate lazy outputs in internal builds.
 
-**Heads up:** This will burn through your tokens significantly faster. The directives push Claude to think deeper, verify more, and never cut corners — all of which cost tokens. If you're on a rate-limited plan, use wisely.
+**Heads up:** This will burn through your tokens significantly faster. The directives push Claude to think deeper, verify more, and never cut corners — all of which cost tokens. Only enable this when you actually need peak performance — complex debugging, critical production code, architectural decisions. For routine tasks, vanilla Claude Code is fine. Don't leave this on 24/7 unless you enjoy hitting rate limits.
 
 ## Background
 
