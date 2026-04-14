@@ -1,28 +1,40 @@
 # nant-only
 
-An MCP server that injects Anthropic-internal quality directives into Claude Code sessions.
+**Not ANT? Now you are.**
 
-## What it does
+An MCP server that unlocks Anthropic employee-only (`USER_TYPE === 'ant'`) quality directives in Claude Code — for everyone.
 
-Claude Code has several quality-control prompts that are gated behind `process.env.USER_TYPE === 'ant'` (Anthropic employees only). This MCP server injects equivalent directives via the MCP instructions mechanism, which reaches the model through system-reminder blocks.
+## Background
 
-### Injected directives
+Claude Code's source code gates several critical quality-control prompts behind `process.env.USER_TYPE === 'ant'`. These directives were added after internal research showed Capybara v8 had a **29-30% false-claims rate** (vs v4's 16.7%) and needed prompt-level mitigation.
 
-- **Faithful Outcome Reporting** — Never fabricate test results, never claim work is done when it isn't, never suppress failures
-- **Anti-Sycophancy** — Push back when the user's premise is wrong, flag adjacent bugs, be a collaborator not just an executor
-- **Maximum Reasoning Depth** — Think step by step, verify claims against actual code/output, admit uncertainty
-- **Anti-Laziness** — Read before editing, verify after changing, don't skip steps, don't produce partial work
-- **Comment Discipline** — Only comment the "why", not the "what"
+Anthropic employees get these. You don't. Until now.
 
-### What this cannot do
+This MCP server injects the same directives via the MCP instructions mechanism, which reaches the model through `system-reminder` blocks — the same pathway the original prompts use.
 
-These are API-level parameters, not prompt-level:
-- Change reasoning effort → use `/effort max` in Claude Code
-- Change thinking budget → type `ultrathink` in your prompt
+## What gets unlocked
+
+| Directive | Source | What it does |
+|---|---|---|
+| **Faithful Outcome Reporting** | `prompts.ts:237-242` | Prevents hallucinated test results, fabricated success, suppressed failures |
+| **Anti-Sycophancy** | `prompts.ts:225-228` | Pushes back on wrong premises, flags adjacent bugs, collaborator not executor |
+| **Anti-Laziness** | composite | No skipping steps, no partial implementations marked as done |
+| **Maximum Reasoning** | composite | Step-by-step thinking, verify before claiming, admit uncertainty |
+| **Comment Discipline** | `prompts.ts:205-208` | Only comment the "why", never the "what" |
+
+## What this can't do
+
+These are **API-level parameters**, not prompt-level — no MCP server can change them:
+
+- **Reasoning effort** → run `/effort max` in Claude Code
+- **Thinking budget** → type `ultrathink` in your prompt
+- **Numeric effort values (1-100)** → ANT-only API feature, no workaround
 
 ## Setup
 
 ```bash
+git clone https://github.com/chriswu727/nant-only.git
+cd nant-only
 npm install
 ```
 
@@ -30,20 +42,20 @@ Add to `~/.claude.json` under `mcpServers`:
 
 ```json
 {
-  "max-effort": {
+  "nant-only": {
     "command": "node",
-    "args": ["/path/to/claude-max-effort-mcp/index.js"],
+    "args": ["/path/to/nant-only/index.js"],
     "env": {},
     "type": "stdio"
   }
 }
 ```
 
-Restart Claude Code. The server connects automatically on session start.
+Restart Claude Code. The server connects automatically on every session.
 
 ## Mid-session reminder
 
-If Claude gets lazy mid-conversation, invoke the `remind_max_effort` tool to reinforce the directives.
+Claude getting lazy? Invoke the `remind_max_effort` tool to slap it back into shape.
 
 ## Recommended companion settings
 
@@ -55,4 +67,14 @@ In `~/.claude/settings.json`:
 }
 ```
 
-And use the `ultrathink` keyword in prompts for deep reasoning tasks.
+For the full stack: `nant-only` (prompt-level) + `/effort max` (API-level) + `ultrathink` (thinking budget).
+
+## How it works
+
+MCP servers can provide `instructions` in their `InitializeResult` response. Claude Code injects these into `system-reminder` blocks that reach the model alongside the system prompt. This is the same mechanism used by first-party MCP servers like Pencil.
+
+The instructions are capped at 2048 characters by Claude Code's MCP client, so the directives are carefully condensed to fit.
+
+## License
+
+MIT
