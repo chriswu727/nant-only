@@ -2,7 +2,7 @@
 
 **Not ANT? Now you are.**
 
-Unlock the full potential of your non-ANT Claude Code. This MCP server injects Anthropic employee-only (`USER_TYPE === 'ant'`) quality directives — the same ones that prevent hallucinations, force deep reasoning, and eliminate lazy outputs in internal builds.
+Unlock the full potential of your non-ANT Claude Code. This project replicates Anthropic employee-only (`USER_TYPE === 'ant'`) quality directives — the same ones that prevent hallucinations, force deep reasoning, and eliminate lazy outputs in internal builds.
 
 **Heads up:** This will burn through your tokens significantly faster. The directives push Claude to think deeper, verify more, and never cut corners — all of which cost tokens. Only enable this when you actually need peak performance — complex debugging, critical production code, architectural decisions. For routine tasks, vanilla Claude Code is fine. Don't leave this on 24/7 unless you enjoy hitting rate limits.
 
@@ -12,30 +12,58 @@ Claude Code's source code gates several critical quality-control prompts behind 
 
 Anthropic employees get these. You don't. Until now.
 
-This MCP server injects the same directives via the MCP instructions mechanism, which reaches the model through `system-reminder` blocks — the same pathway the original prompts use.
-
 ## What gets unlocked
 
 | Directive | Source | What it does |
 |---|---|---|
 | **Faithful Outcome Reporting** | `prompts.ts:237-242` | Prevents hallucinated test results, fabricated success, suppressed failures |
 | **Anti-Sycophancy** | `prompts.ts:225-228` | Pushes back on wrong premises, flags adjacent bugs, collaborator not executor |
+| **Thoroughness & Verification** | `prompts.ts:210-211` | Must verify work actually runs before reporting complete |
 | **Anti-Laziness** | composite | No skipping steps, no partial implementations marked as done |
 | **Maximum Reasoning** | composite | Step-by-step thinking, verify before claiming, admit uncertainty |
-| **Comment Discipline** | `prompts.ts:205-208` | Only comment the "why", never the "what" |
+| **Comment Discipline** | `prompts.ts:205-213` | Only comment the "why", never the "what"; don't remove existing comments blindly |
+| **Edit Precision** | `FileEditTool/prompt.ts:17-18` | Use smallest unique old_string, avoid grabbing 10+ lines |
+| **Communication Style** | `prompts.ts:404-414` | Write for humans, not logs; flowing prose over fragments |
+| **Plan Mode Restraint** | `EnterPlanModeTool/prompt.ts:101-164` | Only plan when genuinely ambiguous; prefer starting work over over-planning |
 
 ## What this can't do
 
-These are **API-level parameters**, not prompt-level — no MCP server can change them:
+These are **API-level parameters**, not prompt-level — no MCP server or CLAUDE.md can change them:
 
 - **Reasoning effort** → run `/effort max` in Claude Code
 - **Thinking budget** → type `ultrathink` in your prompt
 - **Numeric effort values (1-100)** → ANT-only API feature, no workaround
+- **Explore agent model** → ANTs get Opus/Sonnet, you get Haiku for subagents
+
+## How it works
+
+Two-layer injection at different priority levels:
+
+| Layer | File | Weight | Role |
+|---|---|---|---|
+| **CLAUDE.md** | `~/CLAUDE.md` | Highest — injected into system prompt | Full ANT-only directives, all 9 categories |
+| **MCP Server** | `nant-only/index.js` | Medium — injected via `system-reminder` | Condensed reinforcement, fits 2048-char cap |
+
+CLAUDE.md instructions are loaded into the system prompt by Claude Code on every session — this is the same mechanism that project-level instructions use, but at the global (`~/`) level it applies everywhere.
+
+The MCP server provides `instructions` in its `InitializeResult` response, which Claude Code injects as `system-reminder` blocks. This is the same pathway used by first-party MCP servers like Pencil. Having both layers means the directives hit the model from two angles.
 
 ## Setup
 
+### 1. CLAUDE.md (system prompt layer)
+
+Copy the provided `CLAUDE.md` to your home directory:
+
 ```bash
 git clone https://github.com/chriswu727/nant-only.git
+cp nant-only/CLAUDE.md ~/CLAUDE.md
+```
+
+If you already have a `~/CLAUDE.md`, merge the directives into it manually.
+
+### 2. MCP Server (system-reminder layer)
+
+```bash
 cd nant-only
 npm install
 ```
@@ -46,20 +74,14 @@ Add to `~/.claude.json` under `mcpServers`:
 {
   "nant-only": {
     "command": "node",
-    "args": ["/path/to/nant-only/index.js"],
+    "args": ["/absolute/path/to/nant-only/index.js"],
     "env": {},
     "type": "stdio"
   }
 }
 ```
 
-Restart Claude Code. The server connects automatically on every session.
-
-## Mid-session reminder
-
-Claude getting lazy? Invoke the `remind_max_effort` tool to slap it back into shape.
-
-## Recommended companion settings
+### 3. API-level settings (optional but recommended)
 
 In `~/.claude/settings.json`:
 
@@ -69,13 +91,22 @@ In `~/.claude/settings.json`:
 }
 ```
 
-For the full stack: `nant-only` (prompt-level) + `/effort max` (API-level) + `ultrathink` (thinking budget).
+And type `ultrathink` in your prompts for tasks that need deep reasoning.
 
-## How it works
+Restart Claude Code. Everything connects automatically on session start.
 
-MCP servers can provide `instructions` in their `InitializeResult` response. Claude Code injects these into `system-reminder` blocks that reach the model alongside the system prompt. This is the same mechanism used by first-party MCP servers like Pencil.
+## Mid-session reminder
 
-The instructions are capped at 2048 characters by Claude Code's MCP client, so the directives are carefully condensed to fit.
+Claude getting lazy? Invoke the `remind_max_effort` tool to slap it back into shape.
+
+## The full stack
+
+For maximum effect, combine all layers:
+
+1. **`~/CLAUDE.md`** — prompt-level directives (always active)
+2. **nant-only MCP** — reinforcement via system-reminder (always active)
+3. **`/effort max`** — API-level reasoning depth (Opus 4.6 only)
+4. **`ultrathink`** — extended thinking budget (per-prompt)
 
 ## License
 
